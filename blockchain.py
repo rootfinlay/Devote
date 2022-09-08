@@ -1,10 +1,12 @@
 #Imports
 import datetime #Timestamps
-import hashlib #Hash for blocks
+import hashlib
+from itertools import chain #Hash for blocks
 import json #Was used for old file strcture but might be used again for flask
 import os #General purpose
 import csv #New file structure
-import atexit #Handles exit
+import atexit
+from sqlite3 import Timestamp #Handles exit
 
 #Hard coded genesis block - Genesis being first block of chain
 genesis_block = {
@@ -15,11 +17,6 @@ genesis_block = {
 "current_hash" : "d849201979ca8f774b43c29239d41a09fa7de7d65e1c2818cb777c90ffe9aeb3", #Hash of block content
 "previous_hash" : "0000000000000000000000000000000000000000000000000000000000000000" #Previous hash in the chain, because of the genesis block being the first, there won't be a previous hash
 }
-
-with open('chain-length.txt', 'r') as a:
-    contents = a.read()
-
-chain_counter = int(contents)
 
 #Add genesis function - writes genesis block to file then adds to chain counter
 def addGenesis():
@@ -49,13 +46,20 @@ def createBlock(blk_content, sender):
     with open('previous_hash.txt', 'r+') as k:
         previous_hash = k.read()
 
+    current_time = datetime.datetime.now()
+
+    with open('chain-length.txt', 'r+') as a:
+        chain_counter = int(a.read())
+
+    
+
     #Defines block
     block = {
     "block_id" : chain_counter, #Chaincounter variable, updates after every block addition
-    "timestamp" : datetime.datetime.now(), #Data and time now
+    "timestamp" : current_time, #Data and time now
     "sender" : sender, #Sender - will have to do front end registration somehow... not sure yet
     "block_content" : recipient, #Content of the block - who is being voted for
-    "current_hash" : blkHashScript(sender + recipient), #Hashes the block content
+    "current_hash" : blkHashScript(sender + recipient + str(current_time)), #Hashes the block content
     "previous_hash" : previous_hash # Previous hash from the chain
     }
 
@@ -67,17 +71,23 @@ def createBlock(blk_content, sender):
         writer.writerow(block)
     append_block.close()   
 
-    #Adds to chain counter
     chain_counter = chain_counter + 1
+    print("Chaincounter: " + str(chain_counter))
 
     #Establishes previous hash
     previous_hash = block.get('current_hash')
 
     with open('previous_hash.txt', 'w+') as o:
         o.write(previous_hash)
+        o.close()
+
+    with open('chain-length.txt', 'w+') as p:
+        p.write(str(chain_counter))
+        p.close()
 
     return block
 
+    
 
 #Checks if the genesis block exists
 def checkGenesis():
@@ -88,7 +98,6 @@ def checkGenesis():
         if 'GENESIS_BLOCK' in csv_file:
             print('1')
             chain_length_contents = open('chain-length.txt', 'r').read()
-            #chain_counter = int(chain_length_contents)
             previous_hash = open('previous_hash.txt', 'r').read()
         else:
             chain_counter = 1
@@ -102,14 +111,6 @@ def blkHashScript(blk_content):
     hashed_output = hashlib.sha256(bytes(blk_content, 'utf-8')).hexdigest()
     print(hashed_output)
     return hashed_output
-
-#Exit handler handles the exiting of a program
-def exit_handler():
-    global chain_counter
-    chain_length = str(chain_counter)
-    with open('chain-length.txt', 'w') as x:
-        x.write(chain_length)
-    x.close()
 
 #Flask initialisation here
 from flask import Flask, request, jsonify
@@ -137,5 +138,3 @@ if __name__ == '__main__':
     checkGenesis()
     app.run(host='0.0.0.0', port=5000,debug=True)
 
-#Register the function that runs at the end
-atexit.register(exit_handler)
