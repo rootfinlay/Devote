@@ -7,6 +7,8 @@ import os #General purpose
 import csv #New file structure
 import atexit
 from sqlite3 import Timestamp #Handles exit
+import random #Used for wallet creation
+import string
 
 #Hard coded genesis block - Genesis being first block of chain
 genesis_block = {
@@ -15,7 +17,8 @@ genesis_block = {
 "sender" : "GENESIS", #Sender, for genesis block it's just genesis
 "block_content" : "GENESIS_BLOCK", #Content for this block, for genesis just "GENESIS_BLOCK"
 "current_hash" : "d849201979ca8f774b43c29239d41a09fa7de7d65e1c2818cb777c90ffe9aeb3", #Hash of block content
-"previous_hash" : "0000000000000000000000000000000000000000000000000000000000000000" #Previous hash in the chain, because of the genesis block being the first, there won't be a previous hash
+"previous_hash" : "0000000000000000000000000000000000000000000000000000000000000000", #Previous hash in the chain, because of the genesis block being the first, there won't be a previous hash
+"proof_of_work" : "0000000000000000000000000000000000000000000000000000000000000000"
 }
 
 #Add genesis function - writes genesis block to file then adds to chain counter
@@ -23,7 +26,7 @@ def addGenesis():
     global chain_counter
     global previous_hash
     #Fiendnames for csv file
-    fieldnames = ['block_id', 'timestamp', 'sender', 'block_content', 'current_hash', 'previous_hash']
+    fieldnames = ['block_id', 'timestamp', 'sender', 'block_content', 'current_hash', 'previous_hash', 'proof_of_work']
     #Opens csv file and writes to it.
     with open('main-chain.csv', 'a+', newline='') as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
@@ -51,7 +54,7 @@ def createBlock(blk_content, sender):
     with open('chain-length.txt', 'r+') as a:
         chain_counter = int(a.read())
 
-    
+    proof_of_work = proofOfWork()
 
     #Defines block
     block = {
@@ -59,11 +62,12 @@ def createBlock(blk_content, sender):
     "timestamp" : current_time, #Data and time now
     "sender" : sender, #Sender - will have to do front end registration somehow... not sure yet
     "block_content" : recipient, #Content of the block - who is being voted for
-    "current_hash" : blkHashScript(sender + recipient + str(current_time)), #Hashes the block content
-    "previous_hash" : previous_hash # Previous hash from the chain
+    "proof_of_work" : proof_of_work,
+    "current_hash" : blkHashScript(sender + recipient + str(current_time) + proof_of_work), #Hashes the block content
+    "previous_hash" : previous_hash, # Previous hash from the chain
     }
 
-    fieldnames = ['block_id', 'timestamp', 'sender', 'block_content', 'current_hash', 'previous_hash']
+    fieldnames = ['block_id', 'timestamp', 'sender', 'block_content', 'current_hash', 'previous_hash', 'proof_of_work',]
     #Appends block to chain
     with open('main-chain.csv', 'a+', newline='') as append_block:
         writer = csv.DictWriter(append_block, fieldnames = fieldnames)
@@ -86,8 +90,6 @@ def createBlock(blk_content, sender):
         p.close()
 
     return block
-
-    
 
 #Checks if the genesis block exists
 def checkGenesis():
@@ -112,11 +114,29 @@ def blkHashScript(blk_content):
     print(hashed_output)
     return hashed_output
 
+def proofOfWork(level=2):
+    proof_count = 0
+    prototype = random_prototype()
+    h = ''
+    while True:
+        for pow in range(0, 512):
+            temp_string = ''.join(prototype)
+            temp_string = temp_string.join(str(pow+random.randint(1,4096)*random.randint(1,4096)))
+            h = hashlib.sha256(bytes(temp_string, encoding='utf-8')).hexdigest()
+            proof_count += 1
+            if h[0:level] == ('0' * level):
+                print("Proof done")
+                proof_of_work = h
+                return proof_of_work
+
+def random_prototype():
+    return ''.join([random.choice(string.ascii_letters) for n in range(16)])
+
+
 #Flask initialisation here
 from flask import Flask, request, jsonify
 app = Flask(__name__)
 app.config['JSONIFY_PRETTYPRINT_REGULAR'] = False
-
 
 @app.route('/vote', methods=["POST"])
 def vote():
