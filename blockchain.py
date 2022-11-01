@@ -42,7 +42,7 @@ def addGenesis():
         p.write(previous_hash)
 
 #Creates the actual block then writes to a file and updates chain counter - block needs to be declared in here
-def createBlock(blk_content, sender):
+def createBlock(blk_content, sender, proof_of_work):
     global chain_counter
     global previous_hash
 
@@ -114,7 +114,7 @@ def blkHashScript(blk_content):
     print(hashed_output)
     return hashed_output
 
-def proofOfWork(level=2):
+def proofOfWork(level=5):
     proof_count = 0
     prototype = random_prototype()
     h = ''
@@ -143,13 +143,14 @@ def vote():
     global sender
     global recipient
     global previous_hash
-    if 'recipient' in request.args and 'sender' in request.args:
+    if 'recipient' in request.args and 'sender' in request.args and 'proofofwork' in request.args:
         recipient = str(request.args['recipient'])
         sender = str(request.args['sender'])
+        proof_of_work = str(request.args['proofofwork'])
     else:
         return "Invalid args.."
 
-    response = createBlock(recipient, sender)
+    response = createBlock(recipient, sender, proof_of_work)
 
     return jsonify(response),200
 
