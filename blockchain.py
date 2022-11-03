@@ -54,8 +54,6 @@ def createBlock(blk_content, sender, proof_of_work):
     with open('chain-length.txt', 'r+') as a:
         chain_counter = int(a.read())
 
-    proof_of_work = proofOfWork()
-
     #Defines block
     block = {
     "block_id" : chain_counter, #Chaincounter variable, updates after every block addition
@@ -117,6 +115,14 @@ def blkHashScript(blk_content):
 def random_prototype():
     return ''.join([random.choice(string.ascii_letters) for n in range(16)])
 
+def findVote(hash_to_find):
+    with open('main-chain.csv', 'r') as chainfile:
+        reader = csv.reader(chainfile)
+        for row in reader:
+            if hash_to_find in row:
+
+                return row
+        return "Vote not counted"
 
 #Flask initialisation here
 from flask import Flask, request, jsonify
@@ -136,6 +142,17 @@ def vote():
         return "Invalid args.."
 
     response = createBlock(recipient, sender, proof_of_work)
+
+    return jsonify(response),200
+
+@app.route('/checkvote', methods=["GET"])
+def checkvote():
+    if 'hash' in request.args:
+        hash_to_find = str(request.args['hash'])
+    else:
+        return "Invalid args.."
+
+    response = findVote(hash_to_find)
 
     return jsonify(response),200
 

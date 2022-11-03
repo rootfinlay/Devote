@@ -5,21 +5,6 @@ import requests
 
 url = 'http://127.0.0.1:5000/vote'
 
-def Main():
-    sender = input("Please enter your name:\n> ")
-    recipient = input("Please enter your vote:\n> ")
-    proofofwork = proofOfWork()
-
-    object = {
-        'sender' : sender,
-        'recipient' : recipient,
-        'proofofwork' : proofofwork
-    }
-
-    x = requests.post(url, params=object)
-
-    print(x.text)
-
 def proofOfWork(level=5):
     proof_count = 0
     prototype = random_prototype()
@@ -37,6 +22,23 @@ def proofOfWork(level=5):
 
 def random_prototype():
     return ''.join([random.choice(string.ascii_letters) for n in range(16)])
+
+def Main():
+    sender = input("Please enter your name:\n> ")
+    recipient = input("Please enter your vote:\n> ")
+    proofofwork = proofOfWork()
+
+    object = {
+        'sender' : sender,
+        'recipient' : recipient,
+        'proofofwork' : proofofwork
+    }
+
+    x = requests.post(url, params=object)
+
+    print(x.text)
+
+
 
 if __name__ == '__main__':
     Main()
