@@ -16,14 +16,15 @@ def proofOfWork(level=5):
             h = hashlib.sha256(bytes(temp_string, encoding='utf-8')).hexdigest()
             proof_count += 1
             if h[0:level] == ('0' * level):
-                print("Proof done")
                 proof_of_work = h
+                print("\nProof done: ", proof_of_work, "\n")
                 return proof_of_work
 
 def random_prototype():
     return ''.join([random.choice(string.ascii_letters) for n in range(16)])
 
 def Main():
+    print("========== DEVOTE ==========")
     sender = input("Please enter your name:\n> ")
     recipient = input("Please enter your vote:\n> ")
     proofofwork = proofOfWork()
@@ -36,7 +37,7 @@ def Main():
 
     x = requests.post(url, params=object)
 
-    print(x.text)
+    print("Response:\n", x.text)
 
 
 

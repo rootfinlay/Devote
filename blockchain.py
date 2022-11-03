@@ -143,7 +143,7 @@ def vote():
 
     response = createBlock(recipient, sender, proof_of_work)
 
-    return jsonify(response),200
+    return jsonify("Block created: \n", response),200
 
 @app.route('/checkvote', methods=["GET"])
 def checkvote():
