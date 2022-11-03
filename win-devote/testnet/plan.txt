@@ -1,0 +1,2 @@
+blockchain.py - server end (node)
+???.py - client, wallet maybe?
