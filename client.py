@@ -27,12 +27,14 @@ def Main():
     print("========== DEVOTE ==========")
     sender = input("Please enter your name:\n> ")
     recipient = input("Please enter your vote:\n> ")
+    unique_id = input("Please enter your voter ID:\n> ")
     proofofwork = proofOfWork()
 
     object = {
         'sender' : sender,
         'recipient' : recipient,
-        'proofofwork' : proofofwork
+        'proofofwork' : proofofwork,
+        'unique_id_num' : unique_id
     }
 
     x = requests.post(url, params=object)

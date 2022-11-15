@@ -7,12 +7,14 @@ url = 'http://127.0.0.1:5000/checkvote'
 
 def Main():
     print("========== DEVOTE =========")
+    id_to_get = input("Enter ID of voter to get:\n> ")
     hash_to_get = input("Enter hash to get:\n> ")
     if len(hash_to_get) != 64:
         print("Invalid hash..")
         Main()
 
     object = {
+        'id' : id_to_get,
         'hash' : hash_to_get,
     }
 

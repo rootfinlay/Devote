@@ -18,7 +18,8 @@ genesis_block = {
 "block_content" : "GENESIS_BLOCK", #Content for this block, for genesis just "GENESIS_BLOCK"
 "current_hash" : "d849201979ca8f774b43c29239d41a09fa7de7d65e1c2818cb777c90ffe9aeb3", #Hash of block content
 "previous_hash" : "0000000000000000000000000000000000000000000000000000000000000000", #Previous hash in the chain, because of the genesis block being the first, there won't be a previous hash
-"proof_of_work" : "0000000000000000000000000000000000000000000000000000000000000000"
+"proof_of_work" : "0000000000000000000000000000000000000000000000000000000000000000",
+"unique_id_num" : "1"
 }
 
 #Add genesis function - writes genesis block to file then adds to chain counter
@@ -26,7 +27,7 @@ def addGenesis():
     global chain_counter
     global previous_hash
     #Fiendnames for csv file
-    fieldnames = ['block_id', 'timestamp', 'sender', 'block_content', 'current_hash', 'previous_hash', 'proof_of_work']
+    fieldnames = ['block_id', 'timestamp', 'sender', 'block_content', 'current_hash', 'previous_hash', 'proof_of_work', 'unique_id_num']
     #Opens csv file and writes to it.
     with open('main-chain.csv', 'a+', newline='') as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
@@ -42,7 +43,7 @@ def addGenesis():
         p.write(previous_hash)
 
 #Creates the actual block then writes to a file and updates chain counter - block needs to be declared in here
-def createBlock(blk_content, sender, proof_of_work):
+def createBlock(blk_content, sender, proof_of_work, unique_id_num):
     global chain_counter
     global previous_hash
 
@@ -63,9 +64,10 @@ def createBlock(blk_content, sender, proof_of_work):
     "proof_of_work" : proof_of_work,
     "current_hash" : blkHashScript(sender + recipient + str(current_time) + proof_of_work), #Hashes the block content
     "previous_hash" : previous_hash, # Previous hash from the chain
+    "unique_id_num" : unique_id_num
     }
 
-    fieldnames = ['block_id', 'timestamp', 'sender', 'block_content', 'current_hash', 'previous_hash', 'proof_of_work',]
+    fieldnames = ['block_id', 'timestamp', 'sender', 'block_content', 'current_hash', 'previous_hash', 'proof_of_work', 'unique_id_num']
     #Appends block to chain
     with open('main-chain.csv', 'a+', newline='') as append_block:
         writer = csv.DictWriter(append_block, fieldnames = fieldnames)
@@ -115,11 +117,11 @@ def blkHashScript(blk_content):
 def random_prototype():
     return ''.join([random.choice(string.ascii_letters) for n in range(16)])
 
-def findVote(hash_to_find):
+def findVote(hash_to_find, id_to_find):
     with open('main-chain.csv', 'r') as chainfile:
         reader = csv.reader(chainfile)
         for row in reader:
-            if hash_to_find in row:
+            if hash_to_find in row and id_to_find in row:
 
                 return row
         return "Vote not counted"
@@ -134,25 +136,27 @@ def vote():
     global sender
     global recipient
     global previous_hash
-    if 'recipient' in request.args and 'sender' in request.args and 'proofofwork' in request.args:
+    if 'recipient' in request.args and 'sender' in request.args and 'proofofwork' in request.args and 'unique_id_num' in request.args:
         recipient = str(request.args['recipient'])
         sender = str(request.args['sender'])
         proof_of_work = str(request.args['proofofwork'])
+        unique_id_num = str(request.args['unique_id_num'])
     else:
         return "Invalid args.."
 
-    response = createBlock(recipient, sender, proof_of_work)
+    response = createBlock(recipient, sender, proof_of_work, unique_id_num)
 
     return jsonify("Block created: \n", response),200
 
 @app.route('/checkvote', methods=["GET"])
 def checkvote():
-    if 'hash' in request.args:
+    if 'id' in request.args and 'hash' in request.args:
         hash_to_find = str(request.args['hash'])
+        id_to_find = str(request.args['id'])
     else:
         return "Invalid args.."
 
-    response = findVote(hash_to_find)
+    response = findVote(hash_to_find, id_to_find)
 
     return jsonify(response),200
 
