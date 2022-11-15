@@ -3,8 +3,6 @@ import string
 import hashlib
 import requests
 
-url = 'http://127.0.0.1:5000/vote'
-
 def proofOfWork(level=5):
     proof_count = 0
     prototype = random_prototype()
@@ -23,8 +21,8 @@ def proofOfWork(level=5):
 def random_prototype():
     return ''.join([random.choice(string.ascii_letters) for n in range(16)])
 
-def Main():
-    print("========== DEVOTE ==========")
+def Vote():
+    url = 'http://127.0.0.1:5000/vote'
     sender = input("Please enter your name:\n> ")
     recipient = input("Please enter your vote:\n> ")
     unique_id = input("Please enter your voter ID:\n> ")
@@ -41,7 +39,37 @@ def Main():
 
     print("Response:\n", x.text)
 
+def CheckVote():
+    url = 'http://127.0.0.1:5000/checkvote'
+    id_to_get = input("Enter ID of voter to get:\n> ")
+    hash_to_get = input("Enter hash to get:\n> ")
+    if len(hash_to_get) != 64:
+        print("Invalid hash..")
+        Main()
 
+    if len(id_to_get) > 15:
+        print("Invalid ID")
+        Main()
+
+    object = {
+        'id' : id_to_get,
+        'hash' : hash_to_get,
+    }
+
+    x = requests.get(url, object)
+
+    print("Response: \n", x.text)
+
+def Main():
+    print("========== DEVOTE ==========")
+    choice = input("Press 1 to vote and 2 to check if your vote was registered.\n>  ")
+    if choice == "1":
+        Vote()
+    elif choice == "2":
+        CheckVote()
+    else:
+        print("Invalid option")
+        Main()
 
 if __name__ == '__main__':
     Main()

@@ -124,7 +124,7 @@ def findVote(hash_to_find, id_to_find):
             if hash_to_find in row and id_to_find in row:
 
                 return row
-        return "Vote not counted"
+        return "Vote not counted, or incorrect ID/hash, check spelling and try again"
 
 #Flask initialisation here
 from flask import Flask, request, jsonify
