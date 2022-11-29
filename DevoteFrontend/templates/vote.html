@@ -1,0 +1,33 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+  <link href="https://fonts.googleapis.com/css?family=Sawarabi+Mincho" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">
+  <link href="index.css" type="text/css" rel="stylesheet">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <title>Devote</title>
+</head>
+  <body>
+    <h1 class="title">Below you can vote:</h1>
+    <div class="items">
+        <h1>Vote: </h1>
+        <form action="/vote" method="post"> {% csrf_token %}
+     
+        <input type="text" name="sender" placeholder="Full name" />
+        <input type="text" name="vote" placeholder="Vote" />
+        <input type="text" name="uniqueidcode" placeholder="Unique Identifier" />
+
+        <input type="submit" name="vote_submit" value="Send vote" />
+        
+      </div>
+      <p>P.S - The proof of work algorithm may take some time! Please don't leave the page!</p>
+      <br><br><br><p><a href="/logout">Logout</a></p>
+      {% if messages %}
+        {% for message in messages %}
+         {% if message.tags %}  <script>alert("{{ message }}")</script> {% endif %}
+
+        {% endfor %}
+
+    {% endif %}
+  </body>
+</html>

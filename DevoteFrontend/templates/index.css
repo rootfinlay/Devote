@@ -1,0 +1,27 @@
+.title {
+    font-size: 45px;
+    padding: 20px;
+    font-family: Montserrat;
+    letter-spacing: 2px;
+    text-align: center;
+    animation-name: title;
+    animation-duration: 4s;
+}
+.paragraph {
+    font-size: 15px;
+    font-family: Montserrat;
+    letter-spacing: 2px;
+    text-align: center;
+    padding-top: 25px;
+    animation-name: paragraph;
+    animation-duration: 6s;
+}
+
+@keyframes title {
+    0% {color: white}
+    100% {color: black}
+}
+@keyframes paragraph {
+    0% {color: white}
+    100% {color: black}
+}
