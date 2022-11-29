@@ -29,3 +29,14 @@ $ python blockchain.py
 $ python client.py
 ```
 
+# Run the Devote frontend node
+```console
+# cd into the directory
+$ cd DevoteFrontend
+
+# Run the server
+$ python manage.py runserver
+
+# Connect to the website
+# 127.0.0.1:8000
+```
